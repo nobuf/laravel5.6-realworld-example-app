@@ -13,7 +13,16 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('api')->post('/users/login', 'Api\UserController@login');
+Route::group([
+
+    'middleware' => 'api',
+
+], function ($router) {
+
+    Route::post('/users', 'Api\UserController@register');
+    Route::post('/users/login', 'Api\UserController@login');
+
+});
 
 Route::group([
 

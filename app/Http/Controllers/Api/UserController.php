@@ -3,13 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function index()
     {
         return $this->respondWithToken(auth()->getToken()->get());
+    }
+
+    public function register(Request $request)
+    {
+        $this->validateRegister($request);
+
+        $user = User::create([
+            'email' => $request->input('user.email'),
+            'password' => Hash::make($request->input('user.password')),
+            'username' => $request->input('user.username'),
+        ]);
+
+        auth()->login($user);
+
+        return $this->respondWithToken(auth()->getToken()->get());
+    }
+
+    private function validateRegister(Request $request)
+    {
+        $this->validate($request, [
+            'user.email' => 'required|string|email|max:255|unique:users,email',
+            'user.password' => 'required|string|min:6|max:255',
+            'user.username' => 'required|string|max:255|unique:users,username',
+        ]);
     }
 
     public function login(Request $request)
