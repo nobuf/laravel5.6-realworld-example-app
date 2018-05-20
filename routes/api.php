@@ -31,5 +31,6 @@ Route::group([
 ], function ($router) {
 
     Route::get('/user', 'Api\UserController@show');
+    Route::put('/user', 'Api\UserController@update');
 
 });

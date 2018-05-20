@@ -39,6 +39,34 @@ class UserController extends Controller
         ]);
     }
 
+    public function update(Request $request)
+    {
+        $user = auth()->user();
+
+        $this->validateUpdate($request, $user->id);
+
+        $user->fill([
+            'email' => $request->input('user.email', $user->email),
+            'password' => Hash::make($request->input('user.password', $user->password)),
+            'username' => $request->input('user.username', $user->username),
+            'bio' => $request->input('user.bio', $user->bio),
+            'image' => $request->input('user.image', $user->image),
+        ])->save();
+
+        return $this->respondWithToken(auth()->getToken()->get());
+    }
+
+    private function validateUpdate(Request $request, $userId)
+    {
+        $this->validate($request, [
+            'user.email' => 'string|email|max:255|unique:users,email,' . $userId,
+            'user.password' => 'string|min:6|max:255',
+            'user.username' => 'string|max:255|unique:users,username,' . $userId,
+            'user.bio' => 'string|nullable|max:255',
+            'user.image' => 'string|nullable|max:255|url',
+        ]);
+    }
+
     public function login(Request $request)
     {
         $this->validateLogin($request);
