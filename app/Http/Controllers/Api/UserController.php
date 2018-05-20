@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -45,13 +46,15 @@ class UserController extends Controller
         $credentials = $this->credentials($request);
 
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401); // TODO
+            throw ValidationException::withMessages([
+                'user.email' => [trans('auth.failed')],
+            ]);
         }
 
         return $this->respondWithToken($token);
     }
 
-    protected function validateLogin(Request $request)
+    private function validateLogin(Request $request)
     {
         $this->validate($request, [
             'user.email' => 'required|string',
@@ -59,7 +62,7 @@ class UserController extends Controller
         ]);
     }
 
-    protected function credentials(Request $request)
+    private function credentials(Request $request)
     {
         return [
             'email' => $request->input('user.email'),
