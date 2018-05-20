@@ -3,13 +3,27 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Presenters\UserPresenter;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    use AuthenticatesUsers;
+    public function index()
+    {
+        return $this->respondWithToken(auth()->getToken()->get());
+    }
+
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        $credentials = $this->credentials($request);
+
+        if (! $token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401); // TODO
+        }
+
+        return $this->respondWithToken($token);
+    }
 
     protected function validateLogin(Request $request)
     {
@@ -27,17 +41,18 @@ class UserController extends Controller
         ];
     }
 
-    protected function sendLoginResponse(Request $request)
+    private function respondWithToken($token)
     {
-        $this->clearLoginAttempts($request);
+        $user = auth()->user();
 
         return response()->json([
-            'user' => $this->guard()->user(),
+            'user' => [
+                'email' => $user->email,
+                'token' => $token,
+                'username' => $user->username,
+                'bio' => $user->bio,
+                'image' => $user->image,
+            ],
         ]);
-    }
-
-    public function username()
-    {
-        return 'user.email';
     }
 }
