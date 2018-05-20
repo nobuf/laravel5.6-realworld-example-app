@@ -19,7 +19,7 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post('/users', 'Api\UserController@register');
+    Route::post('/users', 'Api\UserController@store');
     Route::post('/users/login', 'Api\UserController@login');
 
 });
@@ -30,6 +30,6 @@ Route::group([
 
 ], function ($router) {
 
-    Route::get('/user', 'Api\UserController@index');
+    Route::get('/user', 'Api\UserController@show');
 
 });

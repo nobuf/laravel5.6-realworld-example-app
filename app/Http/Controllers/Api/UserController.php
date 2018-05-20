@@ -10,14 +10,14 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function index()
+    public function show()
     {
         return $this->respondWithToken(auth()->getToken()->get());
     }
 
-    public function register(Request $request)
+    public function store(Request $request)
     {
-        $this->validateRegister($request);
+        $this->validateStore($request);
 
         $user = User::create([
             'email' => $request->input('user.email'),
@@ -30,7 +30,7 @@ class UserController extends Controller
         return $this->respondWithToken(auth()->getToken()->get());
     }
 
-    private function validateRegister(Request $request)
+    private function validateStore(Request $request)
     {
         $this->validate($request, [
             'user.email' => 'required|string|email|max:255|unique:users,email',
